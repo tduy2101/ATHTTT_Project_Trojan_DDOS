@@ -63,3 +63,8 @@ pip install -r requirements.txt
 - Dự án chỉ nhằm mục đích nghiên cứu và giáo dục.
 - Không sử dụng mã nguồn cho các mục đích gây hại hoặc thử nghiệm trên hệ thống không được phép.
 - Chỉ thực hiện mô phỏng trên hệ thống bạn sở hữu hoặc được sự cho phép rõ ràng.
+
+## 📄 Giấy Phép
+
+- Dự án này được phát hành theo Giấy phép MIT.
+- Bạn có thể tự do sử dụng, chỉnh sửa và phân phối lại với điều kiện tuân thủ các điều khoản trong file LICENSE.
