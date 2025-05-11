@@ -58,6 +58,11 @@ pip install -r requirements.txt
 
 > 📂 Chi tiết cách xây dựng và chạy từng phiên bản được mô tả trong các file README riêng trong từng thư mục phiên bản (V1, V2, V3).
 
+## Lưu Ý Khi Build Lại
+
+- Clone repository về, chỉ giữ lại các file `.py` và file hình ảnh `.ico`.
+- Xóa các file `.exe` và thư mục `dist` trước khi đóng gói lại.
+
 ## 🔐 An Toàn & Đạo Đức
 
 - Dự án chỉ nhằm mục đích nghiên cứu và giáo dục.
