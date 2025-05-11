@@ -1,3 +1,5 @@
+Phiên bản đầu tiên hiện các cửa sổ console để có thể thấy bot có hoạt động (chưa thêm icon cho app)
+
 SystemUpdater.exe được copy vào APPDATA\Roaming
 Bot chạy ngầm (Có thấy console) 
 trong Task Manager dưới tên SystemUpdater.exe.

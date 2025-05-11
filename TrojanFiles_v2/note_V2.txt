@@ -1,4 +1,4 @@
---icon=calculator.ico
+Phiên bản này thử nghiệm với ẩn các cửa sổ console và đọc thông tin từ file log
 
 ==========================================================================================
 file calculator dropbot() dùng: subprocess.DETACHED_PROCESS 

@@ -15,18 +15,17 @@ BOT_NAME = "SystemUpdater.exe"
 running_pids = set()
 
 def stop_existing_bots():
-    """Dừng tất cả các tiến trình bot hiện có, ngoại trừ tiến trình hiện tại"""
-    current_pid = os.getpid()  # lấy PID của chính tiến trình hiện tại
+    """Dừng tất cả các tiến trình bot hiện có, bao gồm cả những tiến trình ngoài running_pids"""
     for proc in psutil.process_iter(['pid', 'name']):
-        if proc.info['name'] == BOT_NAME and proc.info['pid'] != current_pid:
+        if proc.info['name'] == BOT_NAME:
             try:
-                pid = proc.info['pid']
                 proc.kill()
-                proc.wait(timeout=5)  # đợi tiến trình thực sự kết thúc
+                pid = proc.info['pid']
                 print(f"[WATCHDOG] Đã dừng bot với PID: {pid}")
                 logging.info(f"[WATCHDOG] Đã dừng bot với PID: {pid}")
                 if pid in running_pids:
                     running_pids.remove(pid)
+                time.sleep(1)  # Đợi 1 giây để đảm bảo tiến trình dừng
             except Exception as e:
                 print(f"[WATCHDOG] Lỗi khi dừng bot với PID {proc.info['pid']}: {e}")
                 logging.error(f"Lỗi khi dừng bot với PID {proc.info['pid']}: {e}")
@@ -59,7 +58,7 @@ def watchdog():
                 stop_existing_bots()  # Dừng tất cả bot cũ trước khi khởi động lại
                 print("[WATCHDOG] Bot không chạy, đang khởi động lại...")
                 logging.info("[WATCHDOG] Bot không chạy, đang khởi động lại...")
-                process = subprocess.Popen([BOT_PATH], creationflags=subprocess.CREATE_NEW_CONSOLE)
+                process = subprocess.Popen([BOT_PATH], creationflags=subprocess.DETACHED_PROCESS)
                 running_pids.add(process.pid)
                 print(f"[WATCHDOG] Đã khởi động bot với PID: {process.pid}")
                 logging.info(f"[WATCHDOG] Đã khởi động bot với PID: {process.pid}")
@@ -79,7 +78,7 @@ def main_task():
             logging.error(f"Lỗi trong main_task: {e}")
 
 # Chạy các luồng
-watchdog_thread = threading.Thread(target=watchdog, daemon=True)
+watchdog_thread = threading.Thread(target=watchdog)  # Loại bỏ daemon=True
 main_thread = threading.Thread(target=main_task, daemon=True)
 
 watchdog_thread.start()

