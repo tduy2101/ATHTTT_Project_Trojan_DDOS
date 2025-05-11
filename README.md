@@ -53,7 +53,8 @@ git clone https://github.com/yourusername/trojan-calculator.git
 cd trojan-calculator
 
 # Cài dependencies
-pip install -r requirements.txt```
+pip install -r requirements.txt
+```
 
 > 📂 Chi tiết cách xây dựng và chạy từng phiên bản được mô tả trong các file README riêng trong từng thư mục phiên bản (V1, V2, V3).
 
