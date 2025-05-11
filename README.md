@@ -49,7 +49,7 @@ Dự án minh họa cách thức một trojan hoạt động: **giao diện gi�
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/trojan-calculator.git
+git clone https://github.com/tduy2101/ATHTTT_Project_Trojan_DDOS.git
 cd trojan-calculator
 
 # Cài dependencies
