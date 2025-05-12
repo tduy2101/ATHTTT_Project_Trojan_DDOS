@@ -42,3 +42,4 @@ Kill bot trong Task Manager -> Watchdog khởi động lại sau ~10 giây.
 
 =====================================================================================================
 
+Lưu ý : nếu muốn build lại thì clone về rồi chỉ giữ lại các file .py và các file hình ảnh .ico

